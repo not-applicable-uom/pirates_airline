@@ -24,6 +24,7 @@ The repository includes:
 
 * **Table Creation:** SQL statements (DDL) for creating the database schema.
 * **Data Insertion:** SQL statements (DML) for populating the tables with sample data.
+* **Data Manipulation:** SQL statements (DML) for manipulating the data in the tables.
 * **Queries:** Examples of SQL queries (DQL) to retrieve and analyze data, such as:
    * Listing available flights based on origin and destination
    * Generating passenger manifests
