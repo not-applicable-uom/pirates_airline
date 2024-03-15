@@ -32,21 +32,22 @@ BEGIN
         BEGIN
             PRINT 'Airplane specified is already assigned to an another flight for the date entered.';
 
-            DECLARE @airplane_model VARCHAR(40), @airline_name VARCHAR(40), @airline_additional_fees DECIMAL(7, 2), @price DECIMAL(7, 2);
-            DECLARE airplane_cursor CURSOR FOR
+            DECLARE @airplane_model VARCHAR(40), @airline_name VARCHAR(40), @airline_additional_fees DECIMAL(7, 2);
+            DECLARE airplane_cursor CURSOR LOCAL FOR
                 SELECT airplane.airplane_id,
                        airplane_model.model_name,
                        airline.airline_name,
-                       airline.additional_fees,
-                       price
-                FROM ((flight JOIN airplane ON flight.airplane_id = airplane.airplane_id)
-                    JOIN airplane_model ON airplane.airplane_model_id = airplane_model.airplane_model_id)
-                         JOIN airline ON airline.airline_id = airplane.airline_id
-                WHERE NOT ((@departure_time BETWEEN departure_time AND arrival_time) OR
-                           (@arrival_time BETWEEN departure_time AND arrival_time));
+                       airline.additional_fees
+                FROM ((airplane JOIN airline ON airplane.airline_id = airline.airline_id)
+				JOIN airplane_model ON airplane.airplane_model_id = airplane_model.airplane_model_id)
+				LEFT JOIN flight ON airplane.airplane_id = flight.airplane_id
+				WHERE airplane.airplane_id NOT IN (
+												SELECT airplane_id FROM flight 
+												WHERE (@departure_time BETWEEN departure_time AND arrival_time) OR
+												(@arrival_time BETWEEN departure_time AND arrival_time));
             OPEN airplane_cursor;
 
-            FETCH NEXT FROM airplane_cursor INTO @airplane_id, @airplane_model, @airline_name, @airline_additional_fees, @price;
+            FETCH NEXT FROM airplane_cursor INTO @airplane_id, @airplane_model, @airline_name, @airline_additional_fees;
 
             IF @@FETCH_STATUS <> 0
                 BEGIN
@@ -58,7 +59,7 @@ BEGIN
                     WHILE @@FETCH_STATUS = 0 BEGIN
                         PRINT CONCAT(@airplane_id, ', ', @airplane_model, ', ', @airline_name, ', ',
                                      @price * (@airline_additional_fees + 1));
-                        FETCH NEXT FROM airplane_cursor INTO @airplane_id, @airplane_model, @airline_name, @airline_additional_fees, @price;
+                        FETCH NEXT FROM airplane_cursor INTO @airplane_id, @airplane_model, @airline_name, @airline_additional_fees;
                     END
                     CLOSE airplane_cursor;
                     DEALLOCATE airplane_cursor;
@@ -77,12 +78,11 @@ BEGIN
             PRINT 'Crew specified is already assigned to an another flight for the date entered.';
 
             DECLARE @crew_name VARCHAR(40);
-            DECLARE crew_cursor CURSOR FOR
-                SELECT crew.crew_id, crew.name
-                FROM flight
-                         JOIN crew ON flight.crew_id = crew.crew_id
-                WHERE NOT ((@departure_time BETWEEN departure_time AND arrival_time) OR
-                           (@arrival_time BETWEEN departure_time AND arrival_time));
+            DECLARE crew_cursor CURSOR LOCAL FOR
+                SELECT * FROM crew WHERE crew_id NOT IN (
+										SELECT crew_id FROM flight 
+										WHERE (@departure_time BETWEEN departure_time AND arrival_time) OR
+										(@arrival_time BETWEEN departure_time AND arrival_time));
             OPEN crew_cursor;
 
             FETCH NEXT FROM crew_cursor INTO @crew_id, @crew_name;

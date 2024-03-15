@@ -27,8 +27,8 @@ BEGIN
     FROM booking
              JOIN flight ON booking.flight_id = flight.flight_id
     WHERE passenger_id = @passenger_id
-        AND (@departure_time BETWEEN departure_time AND arrival_time)
-       OR (@arrival_time BETWEEN departure_time AND arrival_time);
+        AND ((@departure_time BETWEEN departure_time AND arrival_time)
+       OR (@arrival_time BETWEEN departure_time AND arrival_time));
 
     IF @@ROWCOUNT <> 0
         BEGIN

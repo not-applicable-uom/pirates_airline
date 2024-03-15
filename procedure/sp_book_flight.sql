@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_book_flight @flight_id INTEGER,
+ALTER PROCEDURE sp_book_flight @flight_id INTEGER,
                                @date DATE,
                                @placement CHAR,
                                @seat_type VARCHAR(15),
@@ -72,7 +72,8 @@ BEGIN
         END
     ELSE
         BEGIN
-            EXEC sp_insert_passenger @passenger_id, @first_name, @last_name, @dob,
+
+            EXEC sp_insert_passenger @passenger_id OUTPUT, @first_name, @last_name, @dob,
                  @address, @gender, @passport_number, @phone_number, @email;
             SELECT @max = MAX(booking_id) FROM booking GROUP BY booking_id;
             IF @@ROWCOUNT = 0
@@ -83,8 +84,7 @@ BEGIN
             ELSE
                 BEGIN
                     INSERT INTO booking
-                    VALUES (@max + 1, @date, @seat_number, @passenger_id,
-                            @flight_id);
+                    VALUES (@max + 1, @date, @seat_number, @passenger_id, @flight_id);
                 END
         END
 END

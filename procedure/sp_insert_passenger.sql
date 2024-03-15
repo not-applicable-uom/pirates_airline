@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
+ALTER PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
                                      @first_name VARCHAR(40),
                                      @last_name VARCHAR(40),
                                      @dob DATE,
@@ -9,6 +9,13 @@ CREATE PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
                                      @email VARCHAR(40)
 AS
 BEGIN
+	SELECT * FROM passenger WHERE passport_number = @passport_number;
+	IF @@ROWCOUNT = 0
+		BEGIN
+			PRINT 'There is an another passenger with the same passport number.';
+			RETURN;
+		END
+
     DECLARE @max AS INTEGER;
     SELECT @max = MAX(passenger_id) FROM passenger GROUP BY passenger_id;
     IF @@ROWCOUNT = 0
@@ -16,6 +23,7 @@ BEGIN
             INSERT INTO passenger
             VALUES (1, @first_name, @last_name, @dob, @address, @gender,
                     @passport_number, @phone_number, @email);
+            SET @max = 0;
         END
     ELSE
         BEGIN
