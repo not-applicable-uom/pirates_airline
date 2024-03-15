@@ -1,4 +1,4 @@
-ALTER PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
+CREATE PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
                                      @first_name VARCHAR(40),
                                      @last_name VARCHAR(40),
                                      @dob DATE,
@@ -10,7 +10,7 @@ ALTER PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
 AS
 BEGIN
 	SELECT * FROM passenger WHERE passport_number = @passport_number;
-	IF @@ROWCOUNT = 0
+	IF @@ROWCOUNT <> 0
 		BEGIN
 			PRINT 'There is an another passenger with the same passport number.';
 			RETURN;
