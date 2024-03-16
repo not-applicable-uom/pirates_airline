@@ -410,9 +410,10 @@ BEGIN
 END
 
 GO
-CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @date DATE,
+CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @start_date DATE,
                                                                        @origin_country VARCHAR(40),
-                                                                       @destination_country VARCHAR(40)
+                                                                       @destination_country VARCHAR(40),
+                                                                       @end_date DATE
 AS
 BEGIN
     SELECT flight_id,
@@ -429,7 +430,7 @@ BEGIN
            arrival_time
     FROM (flight JOIN airport AS origin ON flight.origin_airport_id = origin.airport_id)
              JOIN airport AS dest ON flight.destination_airport_id = dest.airport_id
-    WHERE CAST(departure_time AS DATE) >= @date
+    WHERE departure_time BETWEEN @start_date AND @end_date
       AND origin.country = @origin_country
       AND dest.country = @destination_country
       AND (SELECT COUNT(*) AS num FROM fn_seat_availability(flight_id)) > 0
@@ -437,14 +438,15 @@ BEGIN
 END
 
 GO
-CREATE PROCEDURE sp_available_flights_for_specified_date_using_id @date DATE,
+CREATE PROCEDURE sp_available_flights_for_specified_date_using_id @start_date DATE,
                                                                   @origin_airport_id VARCHAR(5),
-                                                                  @destination_airport_id VARCHAR(5)
+                                                                  @destination_airport_id VARCHAR(5),
+                                                                  @end_date DATE
 AS
 BEGIN
     SELECT *
     FROM flight
-    WHERE CAST(departure_time AS DATE) >= @date
+    WHERE departure_time BETWEEN @start_date AND @end_date
       AND origin_airport_id = @origin_airport_id
       AND destination_airport_id = @destination_airport_id
       AND (SELECT COUNT(*) AS num FROM fn_seat_availability(flight_id)) > 0

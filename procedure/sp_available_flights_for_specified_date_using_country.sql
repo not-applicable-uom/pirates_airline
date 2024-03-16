@@ -1,7 +1,8 @@
 -- checks for available flight for specified date using country
-CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @date DATE,
+CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @start_date DATE,
                                                                        @origin_country VARCHAR(40),
-                                                                       @destination_country VARCHAR(40)
+                                                                       @destination_country VARCHAR(40),
+                                                                       @end_date DATE
 AS
 BEGIN
     SELECT flight_id,
@@ -18,7 +19,7 @@ BEGIN
            arrival_time
     FROM (flight JOIN airport AS origin ON flight.origin_airport_id = origin.airport_id)
              JOIN airport AS dest ON flight.destination_airport_id = dest.airport_id
-    WHERE CAST(departure_time AS DATE) >= @date
+    WHERE departure_time BETWEEN @start_date AND @end_date
       AND origin.country = @origin_country
       AND dest.country = @destination_country
       AND (SELECT COUNT(*) AS num FROM fn_seat_availability(flight_id)) > 0
@@ -26,4 +27,4 @@ BEGIN
 END
 GO
 
-EXECUTE sp_available_flights_for_specified_date_using_country '2024-03-25', 'Mauritius', 'Australia';
+EXECUTE sp_available_flights_for_specified_date_using_country '2024-03-25', 'Mauritius', 'Australia', '03-29-2024';
