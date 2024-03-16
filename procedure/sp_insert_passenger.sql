@@ -33,3 +33,25 @@ BEGIN
         END
     SET @passenger_id = @max + 1;
 END
+GO
+
+-- Test if the procedure fails when the passport number is already in the database
+EXECUTE sp_insert_passenger @passenger_id = 0,
+                            @first_name = 'Barn',
+                            @last_name = 'Kellaway',
+                            @dob = '1/3/1994',
+                            @address = '94536 Monument Hill',
+                            @gender = 'M',
+                            @passport_number = 'PQR98765432100C',
+                            @phone_number = '(641) 5273154',
+                            @email = 'bkellaway0@delicious.com';
+-- Test if the procedure works when the passport number is not in the database
+EXECUTE sp_insert_passenger @passenger_id = 0,
+                            @first_name = 'Barn',
+                            @last_name = 'Kellaway',
+                            @dob = '1/3/1994',
+                            @address = '94536 Monument Hill',
+                            @gender = 'M',
+                            @passport_number = 'PQR9876543210DC',
+                            @phone_number = '(641) 5273154',
+                            @email = 'bkellaway0@delicious.com';

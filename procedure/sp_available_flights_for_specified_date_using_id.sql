@@ -12,3 +12,6 @@ BEGIN
       AND (SELECT COUNT(*) AS num FROM fn_seat_availability(flight_id)) > 0
     ORDER BY departure_time;
 END
+GO
+
+EXECUTE sp_available_flights_for_specified_date_using_id '2024-03-25', 'smp01', 'bab01';

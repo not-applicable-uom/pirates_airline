@@ -12,6 +12,7 @@ BEGIN
     IF @@ROWCOUNT = 0
         BEGIN
             PRINT 'This crew id does not exist!';
+            RETURN;
         END;
     ELSE
         BEGIN
@@ -33,3 +34,11 @@ BEGIN
             VALUES (1, @first_name, @last_name, @gender, @dob, @address, @phone_number, @email, @role, @crew_id);
         END;
 END;
+GO
+
+-- Test if the procedure fails when the crew id does not exist
+EXECUTE sp_insert_employee 'Vidovik', 'Drinkale', 'F', '12/30/1911', '70 Hansons Center', '449-418-0121', 'egrissett1m@ftc.gov', 'Flight Attendant', 10;
+-- Test if the procedure works when the crew id exists and the insert is successful
+EXECUTE sp_insert_employee 'Vidovik', 'Drinkale', 'F', '12/30/1911', '70 Hansons Center', '449-418-0121', 'egrissett1m@ftc.gov', 'Flight Attendant', 1;
+
+SELECT * FROM employee;

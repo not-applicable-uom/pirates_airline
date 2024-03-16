@@ -1,5 +1,5 @@
 CREATE PROCEDURE sp_insert_airplane_model @manufacturer AS VARCHAR(40),
-                                         @model_name AS VARCHAR(40)
+                                          @model_name AS VARCHAR(40)
 AS
 BEGIN
     DECLARE @start_str AS VARCHAR(2) = LOWER(SUBSTRING(@manufacturer, 1, 1) + SUBSTRING(@model_name, 1, 1));
@@ -21,3 +21,9 @@ BEGIN
             VALUES (CONCAT(@start_str, '001'), @model_name, @manufacturer);
         END
 END
+GO
+
+-- Test if the id is generated correctly
+EXECUTE sp_insert_airplane_model 'Boeing', 'B747';
+SELECT *
+FROM airplane_model;

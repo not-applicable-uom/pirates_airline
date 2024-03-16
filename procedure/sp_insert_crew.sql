@@ -16,3 +16,7 @@ BEGIN
             INSERT INTO crew VALUES (1, @name);
         END;
 END;
+GO
+
+-- Test if the id is being incremented
+EXEC sp_insert_crew 'Example';

@@ -19,3 +19,7 @@ BEGIN
           ((SELECT seat_number FROM seat) except (SELECT seat_number FROM booking WHERE flight_id = @flight_id));
     RETURN;
 END
+GO
+
+-- returns seats that are available for booking in a flight
+SELECT * FROM fn_seat_availability(1);

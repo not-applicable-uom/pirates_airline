@@ -66,3 +66,15 @@ BEGIN
                     @arrival_time, @crew_id);
         END;
 END;
+GO
+
+-- Test if procedure fails when airplane_id does not exist.
+EXECUTE sp_insert_flight 450.0, 'bd005', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 1;
+-- Test if procedure fails when origin_airport_id does not exist.
+EXECUTE sp_insert_flight 450.0, 'bd001', 'noo01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 1;
+-- Test if procedure fails when destination_airport_id does not exist.
+EXECUTE sp_insert_flight 450.0, 'bd001', 'hul01', '04-01-2024 22:00:00', 'noo01', '04-02-2024 02:00:00', 1;
+-- Test if procedure fails when crew_id does not exist.
+EXECUTE sp_insert_flight 450.0, 'bd001', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 100;
+-- Test if procedure works when all parameters are correct.
+EXECUTE sp_insert_flight 450.0, 'bb001', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 2;

@@ -51,8 +51,8 @@ EXECUTE sp_insert_flight 300.0, 'ab001', 'smp01', '03-28-2024 08:00:00', 'bab01'
 EXECUTE sp_insert_flight 300.0, 'ab001', 'bab01', '03-28-2024 20:00:00', 'smp01', '03-29-2024 03:00:00', 1;
 EXECUTE sp_insert_flight 305.0, 'eb001', 'smp01', '03-28-2024 10:00:00', 'cac01', '03-28-2024 17:00:00', 2;
 EXECUTE sp_insert_flight 305.0, 'eb001', 'cac01', '03-28-2024 22:00:00', 'smp01', '03-29-2024 05:00:00', 2;
-EXECUTE sp_insert_flight 450.0, 'bd001', 'cfp01', '03-30-2024 10:00:00', 'hul01', '03-30-2024 14:00:00', 1;
-EXECUTE sp_insert_flight 450.0, 'bd001', 'hul01', '03-30-2024 22:00:00', 'cfp01', '03-31-2024 02:00:00', 1;
+EXECUTE sp_insert_flight 450.0, 'bd001', 'cfp01', '04-01-2024 10:00:00', 'hul01', '04-01-2024 14:00:00', 1;
+EXECUTE sp_insert_flight 450.0, 'bd001', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 1;
 
 EXECUTE sp_book_flight 1, '03-10-2024', 'A', 'ECONOMY CLASS', NULL,  'Barn', 'Kellaway', '1/3/1994', '94536 Monument Hill', 'M', 'PQR98765432100C', '(641) 5273154', 'bkellaway0@delicious.com';
 EXECUTE sp_book_flight 1, '03-11-2024', 'M', 'ECONOMY CLASS', NULL,  'Ines', 'Geffcock', '9/30/1992', '1 Bultman Hill', 'F', 'RST45678912300J', '(469) 9887706', 'igeffcock1@usgs.gov';
@@ -60,22 +60,35 @@ EXECUTE sp_book_flight 1, '03-10-2024', 'A', 'FIRST CLASS', NULL,  'Dilan', 'Gri
 EXECUTE sp_book_flight 2, '03-10-2024', 'A', 'ECONOMY CLASS', 1;
 EXECUTE sp_book_flight 2, '03-11-2024', 'M', 'ECONOMY CLASS', 2;
 EXECUTE sp_book_flight 2, '03-10-2024', 'A', 'FIRST CLASS', 3;
-
 EXECUTE sp_book_flight 3, '03-19-2024', 'A', 'ECONOMY CLASS', NULL,  'Gerhard', 'Lowdwell', '12/6/1998', '27 Bayside Center', 'M', 'EFG45678912300H', '(573) 3323616', 'glowdwell3@flavors.me';
 EXECUTE sp_book_flight 3, '03-22-2024', 'W', 'BUSINESS CLASS', NULL,  'Angelita', 'Connealy', '8/23/2009', '48624 4th Pass', 'F', 'BCD98765432100A', '(764) 1512114', 'aconnealy4@unblog.fr';
-EXECUTE sp_book_flight 4, '03-19-2024', 'A', 'ECONOMY CLASS', 4;
-EXECUTE sp_book_flight 4, '03-22-2024', 'W', 'BUSINESS CLASS', 5;
+EXECUTE sp_book_flight 2, '03-10-2024', 'W', 'BUSINESS CLASS', 4;
+EXECUTE sp_book_flight 2, '03-9-2024', 'M', 'ECONOMY CLASS', 5;
+EXECUTE sp_book_flight 5, '03-19-2024', 'A', 'ECONOMY CLASS', 4;
+EXECUTE sp_book_flight 5, '03-22-2024', 'W', 'BUSINESS CLASS', 5;
 
 SELECT * FROM airline;
 SELECT * FROM airplane;
 SELECT * FROM airplane_model;
 SELECT * FROM airport;
 SELECT * FROM booking;
-SELECT * FROM booking_refund;
+SELECT * FROM passenger;
 SELECT * FROM crew;
 SELECT * FROM employee;
 SELECT * FROM fare_info;
 SELECT * FROM flight;
-SELECT * FROM passenger
 SELECT * FROM seat;
 
+SELECT * FROM booking_refund;
+
+DELETE FROM booking;
+DELETE FROM flight;
+DELETE FROM seat;
+DELETE FROM fare_info;
+DELETE FROM employee;
+DELETE FROM crew;
+DELETE FROM passenger;
+DELETE FROM airplane;
+DELETE FROM airplane_model;
+DELETE FROM airline;
+DELETE FROM airport;

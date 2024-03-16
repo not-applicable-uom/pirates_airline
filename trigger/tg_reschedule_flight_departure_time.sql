@@ -34,3 +34,11 @@ BEGIN
     CLOSE flight_cursor;
     DEALLOCATE flight_cursor;
 END
+GO
+
+SELECT * FROM flight;
+
+-- Test if trigger recalculate arrival time and departure time of all flights
+UPDATE flight
+SET departure_time = '2024-03-28 09:00:00.000'
+WHERE flight_id = 1;

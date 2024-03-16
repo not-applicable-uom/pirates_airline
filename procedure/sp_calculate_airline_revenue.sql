@@ -13,3 +13,7 @@ BEGIN
     GROUP BY airline.airline_name, YEAR(booking.date)
     ORDER BY YEAR(booking.date);
 END
+GO
+
+-- Test if the stored procedure displays the correct result
+EXECUTE sp_calculate_airline_revenue 'ai001';

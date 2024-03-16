@@ -23,3 +23,8 @@ BEGIN
             INSERT INTO airport VALUES (CONCAT(@start_str, '01'), @name, @country, @city);
         END
 END
+GO
+
+-- Test if the id is generated correctly
+EXECUTE sp_insert_airport 'Mumbai International Airport', 'India', 'Mumbai';
+SELECT * FROM airport;

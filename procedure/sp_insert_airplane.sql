@@ -1,5 +1,5 @@
 CREATE PROCEDURE sp_insert_airplane @airline_id AS VARCHAR(5),
-                                   @airplane_model_id AS VARCHAR(5)
+                                    @airplane_model_id AS VARCHAR(5)
 AS
 BEGIN
     DECLARE @start_str AS VARCHAR(2) = SUBSTRING(@airline_id, 1, 1) + SUBSTRING(@airplane_model_id, 1, 1);
@@ -21,16 +21,25 @@ BEGIN
             VALUES (CONCAT(@start_str, '001'), @airline_id, @airplane_model_id);
         END
 END
+GO
 
-SELECT * FROM airplane;
-SELECT * FROM airline;
-SELECT * FROM airplane_model;
+SELECT *
+FROM airplane;
+SELECT *
+FROM airline;
+SELECT *
+FROM airplane_model;
 --Test for inserting airplane for inexistent airline_id and airplane_model_id
-EXEC sp_insert_airplane 'ai003','bk002';
+EXEC sp_insert_airplane 'ai003', 'bk002';
 
 --Test for inserting airplane for existent airline_id and airplane_model.
-EXEC sp_insert_airplane 'ai001','bk001';
-SELECT * FROM airplane;
-SELECT * FROM airline;
-SELECT * FROM airplane_model;
-DELETE FROM airplane WHERE airplane_id = 'ab004';
+EXEC sp_insert_airplane 'ai001', 'bk001';
+SELECT *
+FROM airplane;
+SELECT *
+FROM airline;
+SELECT *
+FROM airplane_model;
+DELETE
+FROM airplane
+WHERE airplane_id = 'ab004';

@@ -110,7 +110,6 @@ ALTER TABLE seat
     ADD FOREIGN KEY (seat_type) REFERENCES fare_info (seat_type);
 
 GO
--- Check schedule conflicts
 CREATE TRIGGER tg_check_schedule_conflicts
     ON flight
     INSTEAD OF INSERT
@@ -135,6 +134,12 @@ BEGIN
             RETURN
         END
 
+    IF DATEDIFF(HOUR, @departure_time, @arrival_time) > 20
+        BEGIN
+            PRINT 'Flight duration cannot exceed 20 hours.'
+            RETURN
+        END
+
     SELECT *
     FROM flight
     WHERE airplane_id = @airplane_id
@@ -151,12 +156,12 @@ BEGIN
                        airline.airline_name,
                        airline.additional_fees
                 FROM ((airplane JOIN airline ON airplane.airline_id = airline.airline_id)
-                    JOIN airplane_model ON airplane.airplane_model_id = airplane_model.airplane_model_id)
-                         LEFT JOIN flight ON airplane.airplane_id = flight.airplane_id
-                WHERE airplane.airplane_id NOT IN (SELECT airplane_id
-                                                   FROM flight
-                                                   WHERE (@departure_time BETWEEN departure_time AND arrival_time)
-                                                      OR (@arrival_time BETWEEN departure_time AND arrival_time));
+				JOIN airplane_model ON airplane.airplane_model_id = airplane_model.airplane_model_id)
+				LEFT JOIN flight ON airplane.airplane_id = flight.airplane_id
+				WHERE airplane.airplane_id NOT IN (
+												SELECT airplane_id FROM flight
+												WHERE (@departure_time BETWEEN departure_time AND arrival_time) OR
+												(@arrival_time BETWEEN departure_time AND arrival_time));
             OPEN airplane_cursor;
 
             FETCH NEXT FROM airplane_cursor INTO @airplane_id, @airplane_model, @airline_name, @airline_additional_fees;
@@ -191,12 +196,10 @@ BEGIN
 
             DECLARE @crew_name VARCHAR(40);
             DECLARE crew_cursor CURSOR LOCAL FOR
-                SELECT *
-                FROM crew
-                WHERE crew_id NOT IN (SELECT crew_id
-                                      FROM flight
-                                      WHERE (@departure_time BETWEEN departure_time AND arrival_time)
-                                         OR (@arrival_time BETWEEN departure_time AND arrival_time));
+                SELECT * FROM crew WHERE crew_id NOT IN (
+										SELECT crew_id FROM flight
+										WHERE (@departure_time BETWEEN departure_time AND arrival_time) OR
+										(@arrival_time BETWEEN departure_time AND arrival_time));
             OPEN crew_cursor;
 
             FETCH NEXT FROM crew_cursor INTO @crew_id, @crew_name;
@@ -224,23 +227,23 @@ BEGIN
 END
 
 GO
---Flight cancellation.
 CREATE TRIGGER tg_flight_cancellation
-    ON flight
-    INSTEAD OF
-        DELETE
-    AS
+ON flight
+INSTEAD OF
+DELETE
+AS
 BEGIN
     DECLARE
         @flight_id AS INTEGER;
 
     --Retrieve values deleted.
-    SELECT @flight_id = flight_id
-    FROM deleted;
-
-    --If a flight is deleted.
-    IF
-        @@ROWCOUNT > 0
+    DECLARE
+        flight_cursor CURSOR FOR
+            SELECT flight_id
+            FROM deleted;
+    OPEN flight_cursor;
+    FETCH NEXT FROM flight_cursor INTO @flight_id;
+    WHILE @@FETCH_STATUS = 0
         BEGIN
 
             DECLARE
@@ -248,16 +251,16 @@ BEGIN
 
             --Declare cursor.
             DECLARE
-                my_cursor CURSOR FOR
+                booking_cursor CURSOR FOR
                     SELECT booking_id, date, seat_number, passenger_id
                     FROM booking
                     WHERE flight_id = @flight_id;
 
             --Open cursor
-            OPEN my_cursor
+            OPEN booking_cursor
 
             --Fetch rows one by one and process them.
-            FETCH NEXT FROM my_cursor INTO @booking_id, @date , @seat_number, @passenger_id
+            FETCH NEXT FROM booking_cursor INTO @booking_id, @date , @seat_number, @passenger_id
 
             WHILE @@FETCH_STATUS = 0
                 BEGIN
@@ -271,26 +274,26 @@ BEGIN
                     WHERE booking_id = @booking_id;
 
                     --Fetch next row.
-                    FETCH NEXT FROM my_cursor INTO @booking_id,@date, @seat_number, @passenger_id
+                    FETCH NEXT FROM booking_cursor INTO @booking_id,@date, @seat_number, @passenger_id
                 END;
 
             --Close cursor.
-            CLOSE my_cursor;
+            CLOSE booking_cursor;
             DEALLOCATE
-                my_cursor;
+                booking_cursor;
 
             --Delete the flight from flight table.
             DELETE
             FROM flight
             WHERE flight_id = @flight_id;
-
+            FETCH NEXT FROM flight_cursor INTO @flight_id;
         END;
-    ELSE
-        PRINT 'Error!'
+    CLOSE flight_cursor;
+    DEALLOCATE flight_cursor;
 END;
-GO
 
---Create Table booking_refund
+
+GO
 CREATE TABLE booking_refund
 (
     booking_id   INTEGER PRIMARY KEY,
@@ -306,7 +309,6 @@ ALTER TABLE booking_refund
     ADD FOREIGN KEY (seat_number) REFERENCES seat (seat_number);
 
 GO
--- Rescheduling flights departure time
 CREATE TRIGGER tg_reschedule_flight_departure_time
     ON flight
     AFTER UPDATE
@@ -344,7 +346,6 @@ BEGIN
 END
 
 GO
--- Flight needs to be 3+ from current date + booking conflicts
 CREATE TRIGGER tg_validate_booking_date
     ON booking
     INSTEAD OF INSERT
@@ -373,8 +374,8 @@ BEGIN
     FROM booking
              JOIN flight ON booking.flight_id = flight.flight_id
     WHERE passenger_id = @passenger_id
-      AND ((@departure_time BETWEEN departure_time AND arrival_time)
-        OR (@arrival_time BETWEEN departure_time AND arrival_time));
+        AND ((@departure_time BETWEEN departure_time AND arrival_time)
+       OR (@arrival_time BETWEEN departure_time AND arrival_time));
 
     IF @@ROWCOUNT <> 0
         BEGIN
@@ -384,8 +385,9 @@ BEGIN
     INSERT INTO booking VALUES (@booking_id, @date, @seat_number, @passenger_id, @flight_id);
 END
 
+
+
 GO
--- returns available seats in a flight and displays related information
 CREATE FUNCTION fn_seat_availability(@flight_id INTEGER)
     RETURNS @return TABLE
                     (
@@ -408,7 +410,6 @@ BEGIN
 END
 
 GO
--- checks for available flight for specified date using country
 CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @date DATE,
                                                                        @origin_country VARCHAR(40),
                                                                        @destination_country VARCHAR(40)
@@ -420,9 +421,11 @@ BEGIN
            DATEDIFF(HOUR, departure_time, arrival_time) AS flight_duration,
            origin_airport_id,
            origin.name                                  AS origin_airport,
+           origin.country                               AS origin_country,
            departure_time,
            destination_airport_id,
            dest.name                                    as destination_airport,
+           dest.country                                 AS destination_country,
            arrival_time
     FROM (flight JOIN airport AS origin ON flight.origin_airport_id = origin.airport_id)
              JOIN airport AS dest ON flight.destination_airport_id = dest.airport_id
@@ -434,7 +437,6 @@ BEGIN
 END
 
 GO
--- checks for available flight for specified date using id
 CREATE PROCEDURE sp_available_flights_for_specified_date_using_id @date DATE,
                                                                   @origin_airport_id VARCHAR(5),
                                                                   @destination_airport_id VARCHAR(5)
@@ -450,7 +452,7 @@ BEGIN
 END
 
 GO
-ALTER PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
+CREATE PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
                                      @first_name VARCHAR(40),
                                      @last_name VARCHAR(40),
                                      @dob DATE,
@@ -461,12 +463,12 @@ ALTER PROCEDURE sp_insert_passenger @passenger_id INTEGER OUTPUT,
                                      @email VARCHAR(40)
 AS
 BEGIN
-    SELECT * FROM passenger WHERE passport_number = @passport_number;
-    IF @@ROWCOUNT <> 0
-        BEGIN
-            PRINT 'There is an another passenger with the same passport number.';
-            RETURN;
-        END
+	SELECT * FROM passenger WHERE passport_number = @passport_number;
+	IF @@ROWCOUNT <> 0
+		BEGIN
+			PRINT 'There is an another passenger with the same passport number.';
+			RETURN;
+		END
 
     DECLARE @max AS INTEGER;
     SELECT @max = MAX(passenger_id) FROM passenger GROUP BY passenger_id;
@@ -524,14 +526,27 @@ BEGIN
     IF @@ROWCOUNT = 0
         BEGIN
             PRINT 'No seat available for the specified seat type and placement.';
-            PRINT 'Listing all the seats available for the flight.'
-            SELECT *
-            FROM ((SELECT * FROM fn_seat_availability(@flight_id))
-                  EXCEPT
-                  (SELECT *
-                   FROM fn_seat_availability(@flight_id)
-                   WHERE seat_type = @seat_type
-                     AND placement = @placement)) available_seat;
+            PRINT 'Listing all the seats available for the flight:'
+            PRINT '';
+            DECLARE seat_cursor CURSOR FOR
+                SELECT seat_number, seat_type, placement, price
+                FROM ((SELECT * FROM fn_seat_availability(@flight_id))
+                      EXCEPT
+                      (SELECT *
+                       FROM fn_seat_availability(@flight_id)
+                       WHERE seat_type = @seat_type
+                         AND placement = @placement)) available_seat;
+            DECLARE @price AS DECIMAL(7, 2);
+            OPEN seat_cursor;
+            FETCH NEXT FROM seat_cursor INTO @seat_number, @seat_type, @placement, @price;
+            WHILE @@FETCH_STATUS = 0
+                BEGIN
+                    PRINT CONCAT('Seat number: ', @seat_number, ', Seat type: ', @seat_type, ', Placement: ',
+                                 @placement, ', Price: ', @price);
+                    FETCH NEXT FROM seat_cursor INTO @seat_number, @seat_type, @placement, @price;
+                END
+            CLOSE seat_cursor;
+            DEALLOCATE seat_cursor;
             RETURN;
         END
 
@@ -557,6 +572,7 @@ BEGIN
             ELSE
                 BEGIN
                     PRINT 'Passenger with the specified id does not exist.'
+                    RETURN;
                 END
         END
     ELSE
@@ -565,6 +581,7 @@ BEGIN
             EXEC sp_insert_passenger @passenger_id OUTPUT, @first_name, @last_name, @dob,
                  @address, @gender, @passport_number, @phone_number, @email;
             SELECT @max = MAX(booking_id) FROM booking GROUP BY booking_id;
+            PRINT CONCAT('Passenger with id ', @passenger_id, ' inserted.');
             IF @@ROWCOUNT = 0
                 BEGIN
                     INSERT INTO booking
@@ -576,6 +593,7 @@ BEGIN
                     VALUES (@max + 1, @date, @seat_number, @passenger_id, @flight_id);
                 END
         END
+    PRINT 'Booking successful.';
 END
 
 GO
@@ -596,16 +614,48 @@ BEGIN
 END
 
 GO
--- crew member checks if scheduled for a flight for a specified date
+CREATE PROCEDURE sp_cancel_flight_for_specified_country @country VARCHAR(40)
+AS
+BEGIN
+
+    SELECT *
+    FROM airport
+    WHERE country = @country;
+
+    IF
+        @@ROWCOUNT > 0
+        BEGIN
+            DELETE
+            FROM flight
+            WHERE destination_airport_id IN (SELECT airport_id
+                                             FROM airport
+                                             WHERE country = @country);
+            IF
+                @@ROWCOUNT = 0
+                BEGIN
+                    PRINT
+                        'There is no flight scheduled for ' + @country;
+                END
+        END
+    ELSE
+        PRINT 'We do not operate in ' + @country;
+END;
+
+GO
 CREATE PROCEDURE sp_check_if_crew_member_assigned_to_flight @employee_id INTEGER,
                                                             @date DATE
 AS
 BEGIN
-    SELECT CONCAT('You are scheduled for flight_id ', flight_id, ' on ', @date)
+    DECLARE @output VARCHAR(200);
+    SELECT @output = CONCAT('You are scheduled for flight_id ', flight_id, ' on ', @date)
     FROM (employee JOIN crew ON employee.crew_id = crew.crew_id)
              JOIN flight ON crew.crew_id = flight.crew_id
     WHERE employee_id = @employee_id
       AND @date BETWEEN CAST(departure_time AS DATE) AND CAST(arrival_time AS DATE);
+    IF @@ROWCOUNT = 0
+        PRINT 'You are not scheduled for any flights on this date';
+    ELSE
+        PRINT @output;
 END
 
 GO
@@ -684,8 +734,8 @@ END
 
 GO
 CREATE PROCEDURE sp_insert_airport @name VARCHAR(40),
-                                   @country VARCHAR(40),
-                                   @city VARCHAR(40)
+                                  @country VARCHAR(40),
+                                  @city VARCHAR(40)
 AS
 BEGIN
     DECLARE @start_str AS VARCHAR(3) = LOWER(SUBSTRING(@name, 1, 1) +
@@ -744,6 +794,7 @@ BEGIN
     IF @@ROWCOUNT = 0
         BEGIN
             PRINT 'This crew id does not exist!';
+            RETURN;
         END;
     ELSE
         BEGIN
@@ -765,7 +816,6 @@ BEGIN
             VALUES (1, @first_name, @last_name, @gender, @dob, @address, @phone_number, @email, @role, @crew_id);
         END;
 END;
-
 
 GO
 CREATE PROCEDURE sp_insert_flight @price DECIMAL(7, 2), @airplane_id VARCHAR(5), @origin_airport_id VARCHAR(5),
@@ -839,31 +889,45 @@ END;
 
 GO
 CREATE PROCEDURE sp_insert_seat @placement CHAR,
-                                @seat_type VARCHAR(15)
+                               @seat_type VARCHAR(15)
 AS
 BEGIN
-    SELECT * FROM fare_info WHERE seat_type = @seat_type;
-
-    IF @@ROWCOUNT = 0
+    IF
+        @placement <> 'A' AND @placement <> 'W' AND @placement <> 'M'
         BEGIN
-            PRINT 'Invalid seat type.';
+            Print
+                'Invalid placement.';
+            RETURN;
+        END
+
+    SELECT *
+    FROM fare_info
+    WHERE seat_type = @seat_type;
+
+    IF
+        @@ROWCOUNT = 0
+        BEGIN
+            PRINT
+                'Invalid seat type.';
         END
     ELSE
         BEGIN
-            DECLARE @max AS INTEGER;
-            SELECT @max = MAX(seat_number) FROM seat GROUP BY seat_number;
+            DECLARE
+                @max AS INTEGER;
+            SELECT @max = MAX(seat_number)
+            FROM seat
+            GROUP BY seat_number;
 
-            IF @@ROWCOUNT = 0
+            IF
+                @@ROWCOUNT = 0
                 BEGIN
-                    INSERT INTO seat VALUES (1, @placement, @seat_type);
+                    INSERT INTO seat
+                    VALUES (1, @placement, @seat_type);
                 END
             ELSE
                 BEGIN
-                    INSERT INTO seat VALUES (@max + 1, @placement, @seat_type);
+                    INSERT INTO seat
+                    VALUES (@max + 1, @placement, @seat_type);
                 END
         END
-END
-
-SELECT * FROM flight;
-SELECT * FROM booking;
-SELECT * FROM booking_refund;
+END;

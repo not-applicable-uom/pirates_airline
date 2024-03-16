@@ -20,3 +20,9 @@ BEGIN
             INSERT INTO airline VALUES (CONCAT(@start_str, '001'), @airline_name, @additional_fees);
         END
 END
+GO
+
+-- Test if the id is generated correctly
+EXECUTE sp_insert_airline 'American Airlines', 50.00;
+SELECT *
+FROM airline;

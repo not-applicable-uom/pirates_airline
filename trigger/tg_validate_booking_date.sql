@@ -37,3 +37,13 @@ BEGIN
         END
     INSERT INTO booking VALUES (@booking_id, @date, @seat_number, @passenger_id, @flight_id);
 END
+GO
+
+SELECT * FROM booking;
+
+-- Test if trigger checks if flight is booked 3 days ahead
+INSERT INTO booking VALUES (11, '03-27-2024', 2, 1, 1);
+-- Test if trigger checks for booking conflicts(passenger already has a flight scheduled for that date)
+INSERT INTO booking VALUES (11, '03-20-2024', 2, 1, 3);
+-- Test if trigger successfully inserts a booking
+INSERT INTO booking VALUES (11, '03-20-2024', 2, 1, 5);

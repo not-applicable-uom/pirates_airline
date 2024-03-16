@@ -1,40 +1,38 @@
 --Flight cancellation.
 CREATE TRIGGER tg_flight_cancellation
 ON flight
-INSTEAD OF DELETE
+INSTEAD OF
+DELETE
 AS
 BEGIN
-    DECLARE @flight_id AS INTEGER;
+    DECLARE
+        @flight_id AS INTEGER;
 
-	--Declare flight_cursor and retrieve values deleted.
-	DECLARE flight_cursor CURSOR FOR
-		SELECT flight_id 
-		FROM deleted;
+    --Retrieve values deleted.
+    DECLARE
+        flight_cursor CURSOR FOR
+            SELECT flight_id
+            FROM deleted;
+    OPEN flight_cursor;
+    FETCH NEXT FROM flight_cursor INTO @flight_id;
+    WHILE @@FETCH_STATUS = 0
+        BEGIN
 
-	--Open flight_cursor.
-	OPEN flight_cursor;
-
-	
-     --Fetch rows one by one and process them.
-     FETCH NEXT FROM flight_cursor INTO @flight_id;
-
-	 WHILE @@FETCH_STATUS = 0
-		BEGIN
             DECLARE
                 @booking_id INTEGER,@date DATE,@seat_number INTEGER,@passenger_id INTEGER;
 
-            --Declare booking_cursor.
+            --Declare cursor.
             DECLARE
                 booking_cursor CURSOR FOR
                     SELECT booking_id, date, seat_number, passenger_id
                     FROM booking
                     WHERE flight_id = @flight_id;
 
-            --Open booking_cursor
-            OPEN booking_cursor;
+            --Open cursor
+            OPEN booking_cursor
 
             --Fetch rows one by one and process them.
-            FETCH NEXT FROM booking_cursor INTO @booking_id, @date , @seat_number, @passenger_id;
+            FETCH NEXT FROM booking_cursor INTO @booking_id, @date , @seat_number, @passenger_id
 
             WHILE @@FETCH_STATUS = 0
                 BEGIN
@@ -47,26 +45,23 @@ BEGIN
                     FROM booking
                     WHERE booking_id = @booking_id;
 
-                    --Fetch next row for booking.
-                    FETCH NEXT FROM booking_cursor INTO @booking_id,@date, @seat_number, @passenger_id;
+                    --Fetch next row.
+                    FETCH NEXT FROM booking_cursor INTO @booking_id,@date, @seat_number, @passenger_id
                 END;
 
-            --Close booking_cursor.
+            --Close cursor.
             CLOSE booking_cursor;
-            DEALLOCATE booking_cursor;
+            DEALLOCATE
+                booking_cursor;
 
             --Delete the flight from flight table.
             DELETE
             FROM flight
             WHERE flight_id = @flight_id;
-
-			--Fetch next row flight.
-			FETCH NEXT FROM flight_cursor INTO @flight_id;
+            FETCH NEXT FROM flight_cursor INTO @flight_id;
         END;
-		
-		--Close flight_cursor.
-		CLOSE flight_cursor
-		DEALLOCATE flight_cursor;;
+    CLOSE flight_cursor;
+    DEALLOCATE flight_cursor;
 END;
 GO
 
@@ -84,7 +79,6 @@ ALTER TABLE booking_refund
     ADD FOREIGN KEY (passenger_id) REFERENCES passenger (passenger_id);
 ALTER TABLE booking_refund
     ADD FOREIGN KEY (seat_number) REFERENCES seat (seat_number);
-
 
 SELECT * FROM flight;
 SELECT * FROM booking;
