@@ -55,7 +55,6 @@ BEGIN
 
     IF @@ROWCOUNT <> 0
         BEGIN
-            PRINT @flight_id
             INSERT INTO flight
             VALUES ((@flight_id + 1), @price, @airplane_id, @origin_airport_id, @departure_time,
                     @destination_airport_id, @arrival_time, @crew_id);

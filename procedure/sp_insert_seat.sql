@@ -1,7 +1,13 @@
-CREATE PROCEDURE sp_insert_seat @placement CHAR,
+ALTER PROCEDURE sp_insert_seat @placement CHAR,
                                 @seat_type VARCHAR(15)
 AS
 BEGIN
+    IF @placement <> 'A' AND @placement <> 'W' AND @placement <> 'M'
+		BEGIN
+			Print 'Invalid placement.';
+			RETURN;
+		END
+
     SELECT * FROM fare_info WHERE seat_type = @seat_type;
 
     IF @@ROWCOUNT = 0
@@ -22,4 +28,15 @@ BEGIN
                     INSERT INTO seat VALUES (@max + 1, @placement, @seat_type);
                 END
         END
-END
+END;
+
+SELECT * FROM seat;
+
+--Test for inserting seat for invalid placement and seat_type.
+EXEC sp_insert_seat 'B','PREMIUM CLASS';
+
+--Test for inserting seat for invalid seat_type.
+EXEC sp_insert_seat 'A','PREMIUM CLASS';
+
+--Test for inserting seat for invalid placement.
+EXEC sp_insert_seat 'B','FIRST CLASS';

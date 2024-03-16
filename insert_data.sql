@@ -65,3 +65,17 @@ EXECUTE sp_book_flight 3, '03-19-2024', 'A', 'ECONOMY CLASS', NULL,  'Gerhard', 
 EXECUTE sp_book_flight 3, '03-22-2024', 'W', 'BUSINESS CLASS', NULL,  'Angelita', 'Connealy', '8/23/2009', '48624 4th Pass', 'F', 'BCD98765432100A', '(764) 1512114', 'aconnealy4@unblog.fr';
 EXECUTE sp_book_flight 4, '03-19-2024', 'A', 'ECONOMY CLASS', 4;
 EXECUTE sp_book_flight 4, '03-22-2024', 'W', 'BUSINESS CLASS', 5;
+
+SELECT * FROM airline;
+SELECT * FROM airplane;
+SELECT * FROM airplane_model;
+SELECT * FROM airport;
+SELECT * FROM booking;
+SELECT * FROM booking_refund;
+SELECT * FROM crew;
+SELECT * FROM employee;
+SELECT * FROM fare_info;
+SELECT * FROM flight;
+SELECT * FROM passenger
+SELECT * FROM seat;
+

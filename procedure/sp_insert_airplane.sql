@@ -21,3 +21,16 @@ BEGIN
             VALUES (CONCAT(@start_str, '001'), @airline_id, @airplane_model_id);
         END
 END
+
+SELECT * FROM airplane;
+SELECT * FROM airline;
+SELECT * FROM airplane_model;
+--Test for inserting airplane for inexistent airline_id and airplane_model_id
+EXEC sp_insert_airplane 'ai003','bk002';
+
+--Test for inserting airplane for existent airline_id and airplane_model.
+EXEC sp_insert_airplane 'ai001','bk001';
+SELECT * FROM airplane;
+SELECT * FROM airline;
+SELECT * FROM airplane_model;
+DELETE FROM airplane WHERE airplane_id = 'ab004';
