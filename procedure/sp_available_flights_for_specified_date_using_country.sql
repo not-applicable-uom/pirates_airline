@@ -1,8 +1,8 @@
 -- checks for available flight for specified date using country
-CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @start_date DATE,
-                                                                       @origin_country VARCHAR(40),
-                                                                       @destination_country VARCHAR(40),
-                                                                       @end_date DATE
+ALTER PROCEDURE sp_available_flights_for_specified_date_using_country @start_date DATE,
+                                                                      @end_date DATE,
+                                                                      @origin_country VARCHAR(40),
+                                                                      @destination_country VARCHAR(40)
 AS
 BEGIN
     SELECT flight_id,
@@ -27,4 +27,4 @@ BEGIN
 END
 GO
 
-EXECUTE sp_available_flights_for_specified_date_using_country '2024-03-25', 'Mauritius', 'Australia', '03-29-2024';
+EXECUTE sp_available_flights_for_specified_date_using_country '2024-03-25', '03-29-2024', 'Mauritius', 'Australia';

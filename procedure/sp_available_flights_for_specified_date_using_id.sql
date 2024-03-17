@@ -1,8 +1,8 @@
 -- checks for available flight for specified date using id
 CREATE PROCEDURE sp_available_flights_for_specified_date_using_id @start_date DATE,
+                                                                  @end_date DATE,
                                                                   @origin_airport_id VARCHAR(5),
-                                                                  @destination_airport_id VARCHAR(5),
-                                                                  @end_date DATE
+                                                                  @destination_airport_id VARCHAR(5)
 AS
 BEGIN
     SELECT *
@@ -15,4 +15,4 @@ BEGIN
 END
 GO
 
-EXECUTE sp_available_flights_for_specified_date_using_id '2024-03-25', 'smp01', 'bab01', '03-29-2024';
+EXECUTE sp_available_flights_for_specified_date_using_id '2024-03-25', '03-29-2024', 'smp01', 'bab01';

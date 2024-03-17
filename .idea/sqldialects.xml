@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/function/fn_seat_availability.sql" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/init.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/sp_available_flights_for_specified_date_using_id.sql" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/procedure/sp_book_flight.sql" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/procedure/sp_cancel_flight_for_specified_country.sql" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/procedure/sp_insert_airplane.sql" dialect="TSQL" />
