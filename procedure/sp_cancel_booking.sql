@@ -1,4 +1,4 @@
-ALTER PROCEDURE sp_cancel_booking @booking_id INT,
+CREATE PROCEDURE sp_cancel_booking @booking_id INT,
                                    @date DATE
 AS
 BEGIN
@@ -22,19 +22,19 @@ BEGIN
     IF DATEDIFF(DAY, @date, @departure_time) < 3
         BEGIN
             PRINT 'There will be a 75% cancellation charge since the departure date is within 3 days';
-            INSERT INTO booking_cancellation_refund VALUES (@date, @seat_number, @passenger_id, @flight_id, 0.25);
+            INSERT INTO booking_cancellation_by_passenger_refund VALUES (@date, @seat_number, @passenger_id, @flight_id, 0.25);
         END
     ELSE
         BEGIN
             PRINT 'There will be a 25% cancellation charge since the departure date is more than 3 days away';
-            INSERT INTO booking_cancellation_refund VALUES (@date, @seat_number, @passenger_id, @flight_id, 0.75);
+            INSERT INTO booking_cancellation_by_passenger_refund VALUES (@date, @seat_number, @passenger_id, @flight_id, 0.75);
         END
     DELETE FROM booking WHERE booking_id = @booking_id;
     PRINT 'Booking cancelled successfully';
 END
 GO
 
-CREATE TABLE booking_cancellation_refund
+CREATE TABLE booking_cancellation_by_passenger_refund
 (
     booking_id   INTEGER IDENTITY(1,1) PRIMARY KEY,
     date         DATE,

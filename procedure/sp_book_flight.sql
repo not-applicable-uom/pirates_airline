@@ -91,10 +91,12 @@ BEGIN
                  @address, @gender, @passport_number, @phone_number, @email;
 
             SELECT @max = MAX(booking_id) FROM booking GROUP BY booking_id;
+
             IF @@ROWCOUNT = 0
                 BEGIN
                    SET @max = 0;
                 END
+
             PRINT CONCAT('Passenger with id ', @passenger_id, ' inserted.');
 
             INSERT INTO booking

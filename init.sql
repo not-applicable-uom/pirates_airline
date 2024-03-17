@@ -227,6 +227,69 @@ BEGIN
 END
 
 GO
+CREATE TABLE booking_cancellation_by_passenger_refund
+(
+    booking_id   INTEGER IDENTITY(1,1) PRIMARY KEY,
+    date         DATE,
+    seat_number  INTEGER,
+    passenger_id INTEGER,
+    flight_id    INTEGER,
+    refund_amount       DECIMAL(7,2)
+);
+
+GO
+CREATE PROCEDURE sp_cancel_booking @booking_id INT,
+                                   @date DATE
+AS
+BEGIN
+    DECLARE @departure_time DATE,@seat_number INTEGER,@passenger_id INTEGER, @flight_id INTEGER;
+
+    SELECT @departure_time = departure_time, @seat_number = seat_number, @passenger_id = passenger_id, @flight_id = flight.flight_id
+    FROM booking
+             JOIN flight ON booking.flight_id = flight.flight_id
+    WHERE booking_id = @booking_id;
+
+    IF @@ROWCOUNT = 0
+        BEGIN
+            PRINT 'Booking not found';
+            RETURN;
+        END
+    IF DATEDIFF(DAY, @date, @departure_time) < 0
+        BEGIN
+            PRINT 'The departure date has already passed';
+            RETURN;
+        END
+    IF DATEDIFF(DAY, @date, @departure_time) < 3
+        BEGIN
+            PRINT 'There will be a 75% cancellation charge since the departure date is within 3 days';
+            INSERT INTO booking_cancellation_by_passenger_refund VALUES (@date, @seat_number, @passenger_id, @flight_id, 0.25);
+        END
+    ELSE
+        BEGIN
+            PRINT 'There will be a 25% cancellation charge since the departure date is more than 3 days away';
+            INSERT INTO booking_cancellation_by_passenger_refund VALUES (@date, @seat_number, @passenger_id, @flight_id, 0.75);
+        END
+    DELETE FROM booking WHERE booking_id = @booking_id;
+    PRINT 'Booking cancelled successfully';
+END
+
+GO
+CREATE TABLE booking_refund
+(
+    booking_id   INTEGER IDENTITY(1,1) PRIMARY KEY,
+    date         DATE,
+    seat_number  INTEGER,
+    passenger_id INTEGER,
+    flight_id    INTEGER
+);
+
+ALTER TABLE booking_refund
+    ADD FOREIGN KEY (passenger_id) REFERENCES passenger (passenger_id);
+ALTER TABLE booking_refund
+    ADD FOREIGN KEY (seat_number) REFERENCES seat (seat_number);
+
+
+GO
 CREATE TRIGGER tg_flight_cancellation
 ON flight
 INSTEAD OF
@@ -266,7 +329,7 @@ BEGIN
                 BEGIN
                     --Insert the bookings that will be refund into booking_refund table//processed fetched row.
                     INSERT INTO booking_refund
-                    VALUES (@booking_id, @date, @seat_number, @passenger_id, @flight_id);
+                    VALUES (@date, @seat_number, @passenger_id, @flight_id);
 
                     --Delete each row in booking table for flight canceled.
                     DELETE
@@ -291,22 +354,6 @@ BEGIN
     CLOSE flight_cursor;
     DEALLOCATE flight_cursor;
 END;
-
-
-GO
-CREATE TABLE booking_refund
-(
-    booking_id   INTEGER PRIMARY KEY,
-    date         DATE,
-    seat_number  INTEGER,
-    passenger_id INTEGER,
-    flight_id    INTEGER
-);
-
-ALTER TABLE booking_refund
-    ADD FOREIGN KEY (passenger_id) REFERENCES passenger (passenger_id);
-ALTER TABLE booking_refund
-    ADD FOREIGN KEY (seat_number) REFERENCES seat (seat_number);
 
 GO
 CREATE TRIGGER tg_reschedule_flight_departure_time
@@ -585,18 +632,19 @@ BEGIN
 
             EXEC sp_insert_passenger @passenger_id OUTPUT, @first_name, @last_name, @dob,
                  @address, @gender, @passport_number, @phone_number, @email;
+
             SELECT @max = MAX(booking_id) FROM booking GROUP BY booking_id;
-            PRINT CONCAT('Passenger with id ', @passenger_id, ' inserted.');
+
             IF @@ROWCOUNT = 0
                 BEGIN
-                    INSERT INTO booking
-                    VALUES (1, @date, @seat_number, @passenger_id, @flight_id);
+                   SET @max = 0;
                 END
-            ELSE
-                BEGIN
-                    INSERT INTO booking
-                    VALUES (@max + 1, @date, @seat_number, @passenger_id, @flight_id);
-                END
+
+            PRINT CONCAT('Passenger with id ', @passenger_id, ' inserted.');
+
+            INSERT INTO booking
+            VALUES (@max + 1, @date, @seat_number, @passenger_id, @flight_id);
+
         END
     PRINT 'Booking successful.';
 END
