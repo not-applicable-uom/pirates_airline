@@ -38,7 +38,7 @@ BEGIN
                 BEGIN
                     --Insert the bookings that will be refund into booking_refund table//processed fetched row.
                     INSERT INTO booking_refund
-                    VALUES (@booking_id, @date, @seat_number, @passenger_id, @flight_id);
+                    VALUES (@date, @seat_number, @passenger_id, @flight_id);
 
                     --Delete each row in booking table for flight canceled.
                     DELETE
@@ -68,7 +68,7 @@ GO
 --Create Table booking_refund
 CREATE TABLE booking_refund
 (
-    booking_id   INTEGER PRIMARY KEY,
+    booking_id   INTEGER IDENTITY(1,1) PRIMARY KEY,
     date         DATE,
     seat_number  INTEGER,
     passenger_id INTEGER,
