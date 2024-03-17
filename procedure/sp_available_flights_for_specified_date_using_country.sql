@@ -1,5 +1,5 @@
 -- checks for available flight for specified date using country
-ALTER PROCEDURE sp_available_flights_for_specified_date_using_country @start_date DATE,
+CREATE PROCEDURE sp_available_flights_for_specified_date_using_country @start_date DATE,
                                                                       @end_date DATE,
                                                                       @origin_country VARCHAR(40),
                                                                       @destination_country VARCHAR(40)

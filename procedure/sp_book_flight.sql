@@ -1,4 +1,4 @@
-ALTER PROCEDURE sp_book_flight @flight_id INTEGER,
+CREATE PROCEDURE sp_book_flight @flight_id INTEGER,
                                @date DATE,
                                @placement CHAR,
                                @seat_type VARCHAR(15),
