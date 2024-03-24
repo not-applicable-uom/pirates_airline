@@ -128,7 +128,7 @@ INSERT INTO flight VALUES (7, 300.0, 'ab001', 'lul01', '03-28-2024 12:00:00', 'h
 INSERT INTO flight VALUES (7, 450.0, 'ab001', 'cfp01', '04-01-2024 10:00:00', 'hul01', '04-01-2024 14:00:00', 1);
 -- Test if trigger successfully inserts a new flight
 INSERT INTO flight VALUES (7, 450.0, 'ab001', 'cfp01', '03-30-2024 10:00:00', 'hul01', '03-30-2024 14:00:00', 2);
-
-SELECT * from flight;
+-- Reverse change
+DELETE FROM flight WHERE flight_id = 7;
 
 SELECT * FROM booking_refund;

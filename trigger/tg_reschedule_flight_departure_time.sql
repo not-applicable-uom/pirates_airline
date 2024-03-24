@@ -42,3 +42,9 @@ SELECT * FROM flight;
 UPDATE flight
 SET departure_time = '2024-03-28 09:00:00.000'
 WHERE flight_id = 1;
+SELECT * FROM flight;
+
+-- Reverse change
+UPDATE flight
+SET departure_time = '2024-03-28 08:00:00.000'
+WHERE flight_id = 1;

@@ -67,19 +67,19 @@ EXECUTE sp_book_flight 2, '03-9-2024', 'M', 'ECONOMY CLASS', 5;
 EXECUTE sp_book_flight 5, '03-19-2024', 'A', 'ECONOMY CLASS', 4;
 EXECUTE sp_book_flight 5, '03-22-2024', 'W', 'BUSINESS CLASS', 5;
 
-SELECT * FROM airline;
-SELECT * FROM airplane;
-SELECT * FROM airplane_model;
-SELECT * FROM airport;
-SELECT * FROM booking;
-SELECT * FROM passenger;
-SELECT * FROM crew;
-SELECT * FROM employee;
-SELECT * FROM fare_info;
-SELECT * FROM flight;
-SELECT * FROM seat;
-
-SELECT * FROM booking_refund;
+DELETE FROM booking;
+DELETE FROM booking_refund;
+DELETE FROM booking_cancellation_by_passenger_refund;
+DELETE FROM flight;
+DELETE FROM seat;
+DELETE FROM fare_info;
+DELETE FROM employee;
+DELETE FROM crew;
+DELETE FROM passenger;
+DELETE FROM airplane;
+DELETE FROM airplane_model;
+DELETE FROM airline;
+DELETE FROM airport;
 
 DELETE FROM booking;
 DELETE FROM flight;

@@ -44,6 +44,8 @@ CREATE TABLE booking_cancellation_by_passenger_refund
     refund_amount       DECIMAL(7,2)
 );
 
+SELECT * FROM booking;
+
 -- Test if the procedure fails when the booking is not found
 EXECUTE sp_cancel_booking 50, '03-22-2024';
 -- Test for a booking cancellation that has already passed
@@ -52,9 +54,11 @@ EXECUTE sp_cancel_booking 12, '04-04-2024';
 EXECUTE sp_cancel_booking 12, '03-31-2024';
 -- reverse the cancellation
 EXECUTE sp_book_flight 5, '03-22-2024', 'W', 'BUSINESS CLASS', 5;
+DELETE FROM booking_cancellation_by_passenger_refund;
 -- Test for a booking cancellation that is more than 3 days away
 EXECUTE sp_cancel_booking 12, '03-28-2024';
 -- reverse the cancellation
 EXECUTE sp_book_flight 5, '03-22-2024', 'W', 'BUSINESS CLASS', 5;
+DELETE FROM booking_cancellation_by_passenger_refund;
 
-SELECT * FROM booking_cancellation_refund;
+SELECT * FROM booking_cancellation_by_passenger_refund;

@@ -29,7 +29,7 @@ SELECT *
 FROM airline;
 SELECT *
 FROM airplane_model;
---Test for inserting airplane for inexistent airline_id and airplane_model_id
+--Test for inserting airplane for nonexistent airline_id and airplane_model_id
 EXEC sp_insert_airplane 'ai003', 'bk002';
 
 --Test for inserting airplane for existent airline_id and airplane_model.

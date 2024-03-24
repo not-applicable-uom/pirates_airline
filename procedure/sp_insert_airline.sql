@@ -23,6 +23,7 @@ END
 GO
 
 -- Test if the id is generated correctly
+SELECT * FROM airline;
 EXECUTE sp_insert_airline 'American Airlines', 50.00;
-SELECT *
-FROM airline;
+-- Reverse change
+DELETE FROM airline WHERE airline_id = 'am001';
