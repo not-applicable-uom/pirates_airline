@@ -40,5 +40,7 @@ GO
 EXECUTE sp_insert_employee 'Vidovik', 'Drinkale', 'F', '12/30/1911', '70 Hansons Center', '449-418-0121', 'egrissett1m@ftc.gov', 'Flight Attendant', 10;
 -- Test if the procedure works when the crew id exists and the insert is successful
 EXECUTE sp_insert_employee 'Vidovik', 'Drinkale', 'F', '12/30/1911', '70 Hansons Center', '449-418-0121', 'egrissett1m@ftc.gov', 'Flight Attendant', 1;
+-- Reverse change
+DELETE FROM employee WHERE employee_id = 15;
 
 SELECT * FROM employee;

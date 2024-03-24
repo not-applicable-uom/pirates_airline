@@ -118,7 +118,13 @@ EXECUTE sp_book_flight 1, '03-10-2024', 'M', 'ECONOMY CLASS', 20;
 -- Test if booking a flight with a new passenger is successful
 EXECUTE sp_book_flight 1, '03-10-2024', 'M', 'ECONOMY CLASS', NULL, 'Burnaby', 'Cumber', '04/09/1966',
         '030 Hudson Plaza', 'F', 'F7654321', '729-746-2994', 'rsymms2q@google.ca';
+-- Reverse change
+DELETE FROM booking WHERE booking_id = 13;
+DELETE FROM passenger WHERE passenger_id = 6;
 -- Test if booking a flight with an existing passenger is successful
-EXECUTE sp_book_flight 1, '03-10-2024', 'M', 'ECONOMY CLASS', 7;
-SELECT *
-FROM booking;
+EXECUTE sp_book_flight 5, '03-10-2024', 'M', 'ECONOMY CLASS', 3;
+-- Reverse change
+DELETE FROM booking WHERE booking_id = 13;
+
+SELECT * FROM booking;
+SELECT * FROM passenger;

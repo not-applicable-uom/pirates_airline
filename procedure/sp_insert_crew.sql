@@ -20,3 +20,7 @@ GO
 
 -- Test if the id is being incremented
 EXEC sp_insert_crew 'Example';
+-- Reverse change
+DELETE FROM crew WHERE crew_id = 3;
+
+SELECT * FROM crew;

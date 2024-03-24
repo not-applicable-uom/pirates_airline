@@ -55,3 +55,7 @@ EXECUTE sp_insert_passenger @passenger_id = 0,
                             @passport_number = 'PQR9876543210DC',
                             @phone_number = '(641) 5273154',
                             @email = 'bkellaway0@delicious.com';
+-- Reverse change
+DELETE FROM passenger WHERE passenger_id = 6;
+
+SELECT * FROM passenger;
