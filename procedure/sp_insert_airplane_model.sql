@@ -23,7 +23,18 @@ BEGIN
 END
 GO
 
+SELECT * 
+FROM airplane_model;
+
 -- Test if the id is generated correctly
 EXECUTE sp_insert_airplane_model 'Boeing', 'B747';
 SELECT *
 FROM airplane_model;
+
+--Reverse change.
+DELETE FROM airplane_model
+WHERE airplane_model_id = 'bb001';
+
+SELECT * 
+FROM airplane_model;
+

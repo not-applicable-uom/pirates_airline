@@ -29,17 +29,21 @@ SELECT *
 FROM airline;
 SELECT *
 FROM airplane_model;
+
 --Test for inserting airplane for nonexistent airline_id and airplane_model_id
 EXEC sp_insert_airplane 'ai003', 'bk002';
 
 --Test for inserting airplane for existent airline_id and airplane_model.
 EXEC sp_insert_airplane 'ai001', 'bk001';
+
+--Reverse change
+DELETE
+FROM airplane
+WHERE airplane_id = 'ab002';
+
 SELECT *
 FROM airplane;
 SELECT *
 FROM airline;
 SELECT *
 FROM airplane_model;
-DELETE
-FROM airplane
-WHERE airplane_id = 'ab004';

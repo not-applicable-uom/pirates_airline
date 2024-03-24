@@ -791,6 +791,17 @@ CREATE PROCEDURE sp_insert_airport @name VARCHAR(40),
                                   @city VARCHAR(40)
 AS
 BEGIN
+	
+	SELECT * 
+	FROM airport
+	WHERE LOWER(name) = LOWER(@name);
+
+	IF @@ROWCOUNT <> 0 
+		BEGIN
+			PRINT'Another airport with same name already exists!';
+			RETURN;
+		END
+
     DECLARE @start_str AS VARCHAR(3) = LOWER(SUBSTRING(@name, 1, 1) +
                                              SUBSTRING(@country, 1, 1) +
                                              SUBSTRING(@city, 1, 1));
@@ -945,7 +956,20 @@ CREATE PROCEDURE sp_insert_seat @placement CHAR,
                                @seat_type VARCHAR(15)
 AS
 BEGIN
+
+	SELECT *
+    FROM fare_info
+    WHERE seat_type = @seat_type;
+
     IF
+        @placement <> 'A' AND @placement <> 'W' AND @placement <> 'M' AND @@ROWCOUNT = 0
+        BEGIN
+            Print
+                'Invalid placement and invalid seat type.';
+            RETURN;
+        END
+
+	IF
         @placement <> 'A' AND @placement <> 'W' AND @placement <> 'M'
         BEGIN
             Print
@@ -953,7 +977,7 @@ BEGIN
             RETURN;
         END
 
-    SELECT *
+	SELECT *
     FROM fare_info
     WHERE seat_type = @seat_type;
 

@@ -16,7 +16,6 @@ EXECUTE sp_insert_airport 'Brisbane Airport', 'Australia', 'Brisbane';
 EXECUTE sp_insert_airport 'Cairns Airport', 'Australia', 'Cairns';
 EXECUTE sp_insert_airport 'Heathrow Airport', 'United Kingdom', 'London';
 EXECUTE sp_insert_airport 'Los Angeles Airport', 'United States', 'Los Angeles';
-EXECUTE sp_insert_airport 'Heathrow Airport', 'United Kingdom', 'London';
 EXECUTE sp_insert_airport 'Charles de Gaulle Airport', 'France', 'Paris';
 
 EXECUTE sp_insert_crew 'Zephyr';

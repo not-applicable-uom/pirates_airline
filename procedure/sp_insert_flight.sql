@@ -68,6 +68,7 @@ BEGIN
 END;
 GO
 
+SELECT * FROM flight;
 -- Test if procedure fails when airplane_id does not exist.
 EXECUTE sp_insert_flight 450.0, 'bd005', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 1;
 -- Test if procedure fails when origin_airport_id does not exist.
@@ -78,3 +79,5 @@ EXECUTE sp_insert_flight 450.0, 'bd001', 'hul01', '04-01-2024 22:00:00', 'noo01'
 EXECUTE sp_insert_flight 450.0, 'bd001', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 100;
 -- Test if procedure works when all parameters are correct.
 EXECUTE sp_insert_flight 450.0, 'bb001', 'hul01', '04-01-2024 22:00:00', 'cfp01', '04-02-2024 02:00:00', 2;
+--Reverse change
+DELETE FROM flight WHERE airplane_id = 'bb001';
